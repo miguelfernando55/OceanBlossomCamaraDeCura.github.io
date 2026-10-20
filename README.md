@@ -6,10 +6,7 @@
 
 ## 📸 Referências Visuais do Conceito
 
-| Câmara de Cura / Protótipo | Rampa de Abastecimento ($\text{CO}_2$) | Câmara Climática / Controlo |
-| :---: | :---: | :---: |
-| ![Protótipo de Câmara de Cura](images/prototipo_camara.jpg) | ![Garrafas de CO2](images/garrafas_co2.jpg) | ![Câmara de Ensaio Climático](images/camara_climatica.jpg) |
-| *Exemplo de câmara estanque sob pressão/vácuo* | *Rampa e garrafas de alimentação de $\text{CO}_2$* | *Unidade de controlo e monitorização* |
+![Protótipo de Câmara de Cura](images/CamaraDeCuraEmAtmosferaRicaEmCO2.jpeg) 
 
 ---
 
@@ -216,11 +213,3 @@ Semanas 18-20: [Fase 8] Tratamento de Dados, Relatório e Validação
 2. Manual de Operação e Segurança.
 3. Base de dados experimental detalhada com as curvas otimizadas de cura.
 4. Relatório final com análise do impacto na resistência, durabilidade, custos e pegada de carbono.
-
----
-
-## 12. Guia Visual
-
-```markdown
-![Texto Alternativo](CamaraDeCuraEmAtmosferaRicaEmCO2.jpeg)
-```
