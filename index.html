@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Protótipo de câmara de cura acelerada de betão em atmosfera rica em CO₂. Conceção, instrumentação, ciclo de cura, ensaios e segurança.">
+  <title>Câmara de Cura CO₂ | Protótipo Experimental</title>
+  <style>
+    :root {
+      --ink: #172b3a;
+      --muted: #607381;
+      --paper: #f4f7f8;
+      --white: #fff;
+      --line: #dce5e9;
+      --blue: #126782;
+      --blue-dark: #0b3d52;
+      --teal: #31b6a3;
+      --pale: #e6f4f3;
+      --amber: #fff3d6;
+      --amber-ink: #80520b;
+      --shadow: 0 18px 48px rgba(18, 50, 67, .09);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+    body { margin: 0; color: var(--ink); background: var(--paper); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.6; }
+    a { color: inherit; }
+    .topbar { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.94); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .nav { max-width: 1180px; margin: auto; padding: 13px 24px; display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.03em; text-decoration: none; white-space: nowrap; }
+    .brand-mark { width: 39px; height: 39px; display: grid; place-items: center; border-radius: 12px; color: white; background: var(--blue-dark); font-size: 13px; letter-spacing: -.04em; }
+    .navlinks { display: flex; gap: 18px; align-items: center; overflow-x: auto; font-size: 13px; color: var(--muted); }
+    .navlinks a { text-decoration: none; white-space: nowrap; }
+    .navlinks a:hover { color: var(--blue); }
+    .hero { color: white; background: radial-gradient(circle at 85% 20%, rgba(49,182,163,.25), transparent 28%), linear-gradient(120deg, #0b3448, #105d73 65%, #147e89); overflow: hidden; }
+    .hero-inner { max-width: 1180px; min-height: 510px; padding: 76px 24px 72px; margin: auto; display: grid; grid-template-columns: 1.2fr .8fr; gap: 48px; align-items: center; }
+    .eyebrow { color: #9ce5d8; font-weight: 800; font-size: 12px; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { max-width: 720px; margin: 15px 0 18px; font-size: clamp(38px, 5vw, 62px); line-height: 1.04; letter-spacing: -.055em; }
+    .hero p { max-width: 670px; color: #d7e8ed; font-size: 17px; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 17px; border-radius: 10px; font-weight: 750; text-decoration: none; font-size: 14px; border: 1px solid transparent; }
+    .btn-primary { color: #073849; background: #9ce5d8; }
+    .btn-secondary { color: white; border-color: rgba(255,255,255,.35); }
+    .chamber-visual { position: relative; min-height: 310px; display: grid; place-items: center; }
+    .halo { position: absolute; width: 290px; height: 290px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); box-shadow: 0 0 0 30px rgba(255,255,255,.035), 0 0 0 60px rgba(255,255,255,.025); }
+    .tank { position: relative; width: 205px; height: 238px; border: 5px solid #c5d9de; border-radius: 24px 24px 18px 18px; background: linear-gradient(100deg, #688894, #d5e4e7 30%, #7f9ba4 54%, #d9e7e9 76%, #6c8994); box-shadow: 18px 22px 28px rgba(0,0,0,.23), inset 0 0 0 8px rgba(10,48,64,.18); }
+    .tank:before { content: ""; position: absolute; top: -21px; left: -12px; right: -12px; height: 24px; border: 4px solid #c5d9de; border-radius: 9px; background: linear-gradient(#e5eff0,#78949e); }
+    .tank:after { content: ""; position: absolute; inset: 30px 22px 24px; border: 2px solid rgba(16,55,71,.45); border-radius: 13px; background: linear-gradient(140deg, rgba(15,83,105,.5), rgba(159,222,218,.2)); }
+    .tank-window { position: absolute; z-index: 1; width: 68px; height: 68px; left: 50%; top: 78px; transform: translateX(-50%); border-radius: 50%; border: 6px solid #d6e4e7; background: radial-gradient(circle at 35% 30%, #a9e6de, #267c8b 70%); box-shadow: 0 0 0 4px #496c78; }
+    .tank-base { position: absolute; bottom: -17px; left: -18px; right: -18px; height: 17px; border-radius: 4px; background: #7e9aa4; }
+    .visual-label { position: absolute; color: #c9e4e7; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    .visual-label.left { left: 0; top: 80px; } .visual-label.right { right: 0; bottom: 72px; }
+    .section { max-width: 1180px; margin: auto; padding: 76px 24px; }
+    .section-head { max-width: 720px; margin-bottom: 30px; }
+    .kicker { color: var(--blue); font-size: 12px; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+    h2 { font-size: clamp(28px, 3.5vw, 40px); line-height: 1.12; letter-spacing: -.04em; margin: 8px 0 12px; }
+    h3 { margin: 0 0 9px; font-size: 18px; letter-spacing: -.02em; }
+    .lead { color: var(--muted); font-size: 16px; margin: 0; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: -32px; position: relative; z-index: 2; }
+    .stat { padding: 22px; background: white; border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+    .stat strong { display: block; color: var(--blue); font-size: 25px; letter-spacing: -.04em; }
+    .stat span { color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 23px; box-shadow: 0 8px 24px rgba(18,50,67,.035); }
+    .icon { width: 42px; height: 42px; display: grid; place-items: center; margin-bottom: 17px; border-radius: 12px; background: var(--pale); color: var(--blue); font-size: 20px; font-weight: 800; }
+    .card p, .card li { color: var(--muted); font-size: 14px; }
+    .card ul { padding-left: 18px; margin-bottom: 0; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start; }
+    .soft-panel { background: #eaf1f4; border-radius: 20px; padding: 28px; }
+    .feature-list { list-style: none; padding: 0; margin: 18px 0 0; }
+    .feature-list li { display: flex; gap: 12px; margin: 13px 0; color: #405866; }
+    .check { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; background: white; color: var(--blue); font-weight: 900; }
+    .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; counter-reset: step; }
+    .step { position: relative; background: white; border: 1px solid var(--line); border-radius: 15px; padding: 20px 17px; min-height: 150px; }
+    .step:before { counter-increment: step; content: counter(step, decimal-leading-zero); display: block; color: var(--teal); font-size: 13px; font-weight: 900; margin-bottom: 13px; }
+    .step p { margin: 0; color: var(--muted); font-size: 13px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    table { border-collapse: collapse; width: 100%; min-width: 650px; text-align: left; font-size: 14px; }
+    th, td { padding: 15px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { background: #edf4f6; color: var(--blue-dark); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    tr:last-child td { border-bottom: 0; }
+    td { color: var(--muted); } td:first-child { color: var(--ink); font-weight: 700; }
+    .phases { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .phase { border-left: 3px solid var(--teal); padding: 7px 0 7px 15px; }
+    .phase small { display: block; color: var(--blue); font-weight: 850; margin-bottom: 5px; }
+    .phase strong { display: block; font-size: 14px; }
+    .warning { display: grid; grid-template-columns: auto 1fr; gap: 17px; padding: 24px; border: 1px solid #f0d69c; background: var(--amber); color: var(--amber-ink); border-radius: 16px; }
+    .warning .symbol { font-size: 26px; line-height: 1; }
+    .warning p { margin: 5px 0 0; font-size: 14px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .kpi { padding: 20px; border-radius: 15px; background: var(--blue-dark); color: white; }
+    .kpi span { display: block; color: #a9dcd9; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+    .kpi strong { display: block; font-size: 25px; margin: 7px 0; }
+    .kpi p { margin: 0; color: #d3e4e8; font-size: 13px; }
+    .materials { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 15px; }
+    .pill { background: white; border: 1px solid var(--line); border-radius: 999px; padding: 8px 12px; font-size: 13px; color: #47616e; }
+    footer { padding: 30px 24px; background: #092e40; color: #c5dbe0; }
+    .footer-inner { max-width: 1180px; margin: auto; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; font-size: 13px; }
+    .backtop { color: #9ce5d8; text-decoration: none; }
+    @media (max-width: 900px) {
+      .nav { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .navlinks { width: 100%; padding-bottom: 2px; }
+      .hero-inner { grid-template-columns: 1fr; padding-top: 55px; gap: 15px; }
+      .chamber-visual { min-height: 280px; }
+      .stats, .kpis { grid-template-columns: repeat(2, 1fr); }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .steps, .phases { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .section { padding: 54px 18px; }
+      .hero-inner { padding: 48px 18px 54px; }
+      .stats { margin: 0 18px; }
+      .stats, .grid, .two-col, .steps, .phases, .kpis { grid-template-columns: 1fr; }
+      .stat { padding: 17px; }
+      .visual-label.left { left: 4px; } .visual-label.right { right: 4px; }
+      .tank { transform: scale(.88); }
+    }
+    @media print {
+      .topbar, .actions { display: none; }
+      body { background: white; }
+      .hero { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .section { padding: 30px 0; }
+      .card, .stat { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <nav class="nav" aria-label="Navegação principal">
+      <a class="brand" href="#inicio"><span class="brand-mark">CO₂</span><span>Câmara de Cura</span></a>
+      <div class="navlinks">
+        <a href="#projeto">Projeto</a><a href="#concecao">Conceção</a><a href="#instrumentacao">Instrumentação</a>
+        <a href="#ciclo">Ciclo de cura</a><a href="#ensaios">Ensaios</a><a href="#seguranca">Segurança</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-inner">
+        <div>
+          <div class="eyebrow">Protótipo experimental · Betão armado</div>
+          <h1>Cura acelerada de betão com CO₂, sob controlo.</h1>
+          <p>Desenvolvimento de uma câmara de cura em atmosfera rica em dióxido de carbono para vigas e pilares, com controlo das condições ambientais e registo contínuo dos parâmetros do processo.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#projeto">Explorar o projeto <span aria-hidden="true">↓</span></a>
+            <a class="btn btn-secondary" href="#ciclo">Ver ciclo de cura</a>
+          </div>
+        </div>
+        <div class="chamber-visual" role="img" aria-label="Ilustração conceptual de uma câmara metálica de cura">
+          <div class="halo"></div><span class="visual-label left">Atmosfera controlada</span>
+          <div class="tank"><div class="tank-window"></div><div class="tank-base"></div></div>
+          <span class="visual-label right">T · HR · P · CO₂</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-label="Parâmetros principais">
+      <div class="stats">
+        <div class="stat"><strong>CO₂</strong><span>Concentração monitorizada</span></div>
+        <div class="stat"><strong>T / HR</strong><span>Temperatura e humidade relativa</span></div>
+        <div class="stat"><strong>P</strong><span>Pressão e vácuo parcial</span></div>
+        <div class="stat"><strong>PLC + HMI</strong><span>Automação, alarmes e registo</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="projeto">
+      <div class="section-head">
+        <div class="kicker">01 · Enquadramento</div>
+        <h2>O que se pretende desenvolver</h2>
+        <p class="lead">Um protótipo funcional para tratar elementos de betão armado produzidos em moldes, num recipiente fechado com condições de cura controladas.</p>
+      </div>
+      <div class="two-col">
+        <div>
+          <h3>Objetivo geral</h3>
+          <p>Projetar, construir e validar uma câmara de cura em atmosfera rica em CO₂, capaz de tratar elementos de betão armado e registar continuamente todos os parâmetros do processo.</p>
+          <h3 style="margin-top:25px">Princípio de funcionamento</h3>
+          <p>O CO₂ visa promover reações de carbonatação no betão, com potencial para aumentar a resistência inicial e reduzir a permeabilidade. O efeito da perda de alcalinidade na proteção das armaduras contra a corrosão deverá ser avaliado rigorosamente.</p>
+        </div>
+        <div class="soft-panel">
+          <h3>Objetivos específicos</h3>
+          <ul class="feature-list">
+            <li><span class="check">✓</span><span><strong>Acelerar a cura</strong><br>Favorecer resistências mecânicas precoces e reduzir o tempo até à desmoldagem.</span></li>
+            <li><span class="check">✓</span><span><strong>Avaliar a sustentabilidade</strong><br>Quantificar e otimizar o CO₂ fixado pelo betão.</span></li>
+            <li><span class="check">✓</span><span><strong>Investigar a durabilidade</strong><br>Estudar porosidade, permeabilidade e risco de corrosão.</span></li>
+            <li><span class="check">✓</span><span><strong>Repetibilidade e escala</strong><br>Permitir ciclos programáveis e soluções modulares.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="concecao" style="background:#edf3f5;max-width:none">
+      <div style="max-width:1180px;margin:auto">
+        <div class="section-head">
+          <div class="kicker">02 · Conceção geral</div>
+          <h2>Subsistemas do protótipo</h2>
+          <p class="lead">A arquitetura reúne uma estrutura estanque, circuitos de gás, condicionamento térmico e mecanismos de segurança.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><div class="icon">▤</div><h3>Recipiente e estrutura</h3><p>Estrutura metálica rígida e estanque, dimensionada para vácuo parcial e pressão positiva. Interior resistente à humidade e à limpeza, com passagens estanques para sensores, tubos e cabos.</p></article>
+          <article class="card"><div class="icon">◉</div><h3>Tampa e fecho</h3><p>Tampa articulada ou amovível, fecho mecânico de segurança e junta de elastómero compatível com CO₂ e variações de temperatura e pressão. Interbloqueio para impedir abertura em condições inseguras.</p></article>
+          <article class="card"><div class="icon">↘</div><h3>Sistema de vácuo</h3><p>Bomba de vácuo, válvulas de isolamento e retenção e transdutor de pressão absoluta para remover parcialmente o ar antes da injeção de CO₂.</p></article>
+          <article class="card"><div class="icon">CO₂</div><h3>Alimentação e condicionamento</h3><p>Garrafa ou reservatório, regulador de pressão, válvulas de corte, caudalímetro e módulo térmico em linha para aquecer ou arrefecer o gás injetado.</p></article>
+          <article class="card"><div class="icon">⟳</div><h3>Circulação interna</h3><p>Ventiladores internos estanques para promover a homogeneidade da temperatura, humidade relativa e concentração de CO₂.</p></article>
+          <article class="card"><div class="icon">⇧</div><h3>Purga e exaustão</h3><p>Circuito independente para despressurização e encaminhamento seguro do CO₂ para o exterior do edifício antes da abertura da câmara.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="instrumentacao">
+      <div class="section-head">
+        <div class="kicker">03 · Instrumentação e controlo</div>
+        <h2>Monitorização integrada</h2>
+        <p class="lead">A automação deve permitir controlo em tempo real, execução de perfis de cura, exportação de dados e gestão de alarmes.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Grandeza / estado</th><th>Localização</th><th>Função principal</th></tr></thead>
+          <tbody>
+            <tr><td>Concentração de CO₂</td><td>Interior da câmara</td><td>Medir a percentagem e acompanhar o consumo de gás.</td></tr>
+            <tr><td>Temperatura (T)</td><td>Interior, exterior e linha de alimentação</td><td>Monitorizar as condições térmicas e o gás.</td></tr>
+            <tr><td>Humidade relativa (HR)</td><td>Interior e exterior</td><td>Controlar o perfil de humidade durante a cura.</td></tr>
+            <tr><td>Pressão absoluta (P)</td><td>Interior da câmara</td><td>Gerir patamares de vácuo e pressão de cura.</td></tr>
+            <tr><td>Pressão atmosférica</td><td>Exterior da câmara</td><td>Servir de referência para calcular diferenciais.</td></tr>
+            <tr><td>Estado de válvulas e tampa</td><td>Estrutura e linhas de gás</td><td>Interbloqueio e segurança do operador.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid" style="margin-top:16px">
+        <article class="card"><h3>PLC / controlador industrial</h3><p>Coordena a sequência e os parâmetros do processo.</p></article>
+        <article class="card"><h3>Ecrã HMI</h3><p>Permite supervisão e controlo em tempo real.</p></article>
+        <article class="card"><h3>Dados e alarmes</h3><p>Registo contínuo exportável para CSV/Excel, alarmes e paragens de emergência.</p></article>
+      </div>
+    </section>
+
+    <section class="section" id="ciclo" style="background:#edf3f5;max-width:none">
+      <div style="max-width:1180px;margin:auto">
+        <div class="section-head">
+          <div class="kicker">04 · Fluxo de funcionamento</div>
+          <h2>O ciclo de cura em oito etapas</h2>
+          <p class="lead">Sequência conceptual indicada no plano de desenvolvimento. Os parâmetros operacionais devem ser definidos e validados no projeto técnico.</p>
+        </div>
+        <div class="steps">
+          <div class="step"><h3>Carregamento e preparação</h3><p>Colocar os elementos de betão e preparar a câmara.</p></div>
+          <div class="step"><h3>Fecho e estanquidade</h3><p>Fechar e verificar a estanquidade do sistema.</p></div>
+          <div class="step"><h3>Vácuo parcial</h3><p>Remover parcialmente o ar interior.</p></div>
+          <div class="step"><h3>Condicionamento térmico</h3><p>Ajustar as condições térmicas previstas para o ciclo.</p></div>
+          <div class="step"><h3>Injeção controlada de CO₂</h3><p>Introduzir o gás de forma controlada.</p></div>
+          <div class="step"><h3>Fase de cura controlada</h3><p>Manter e registar os parâmetros definidos.</p></div>
+          <div class="step"><h3>Purga e exaustão</h3><p>Encaminhar o CO₂ de forma segura para o exterior.</p></div>
+          <div class="step"><h3>Despressurização e abertura</h3><p>Confirmar condições seguras antes de abrir.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker">05 · Plano de trabalho</div>
+        <h2>Da pesquisa à validação</h2>
+        <p class="lead">O cronograma está organizado em oito fases de desenvolvimento.</p>
+      </div>
+      <div class="phases">
+        <div class="phase"><small>FASE 1</small><strong>Pesquisa e requisitos</strong></div>
+        <div class="phase"><small>FASE 2</small><strong>Projeto mecânico e CAD</strong></div>
+        <div class="phase"><small>FASE 3</small><strong>Circuitos de gás e térmico</strong></div>
+        <div class="phase"><small>FASE 4</small><strong>Automação, PLC e sensores</strong></div>
+        <div class="phase"><small>FASE 5</small><strong>Fabrico e montagem</strong></div>
+        <div class="phase"><small>FASE 6</small><strong>Comissionamento e segurança (sem betão)</strong></div>
+        <div class="phase"><small>FASE 7</small><strong>Ensaios experimentais com betão</strong></div>
+        <div class="phase"><small>FASE 8</small><strong>Tratamento de dados, relatório e validação</strong></div>
+      </div>
+    </section>
+
+    <section class="section" id="ensaios" style="background:#edf3f5;max-width:none">
+      <div style="max-width:1180px;margin:auto">
+        <div class="section-head">
+          <div class="kicker">06 · Ensaios experimentais</div>
+          <h2>Variáveis e caracterização do betão</h2>
+          <p class="lead">O plano de ensaios compara condições de cura e propriedades do material, incluindo resistência, durabilidade e carbonatação.</p>
+        </div>
+        <div class="two-col">
+          <div class="card">
+            <h3>Variáveis de estudo</h3>
+            <ul>
+              <li>Concentração de CO₂ (0 a 100, conforme indicado no plano)</li>
+              <li>Temperatura de cura</li>
+              <li>Humidade relativa</li>
+              <li>Pressão / nível de vácuo prévio</li>
+              <li>Duração do ciclo de cura</li>
+              <li>Idade / grau de hidratação inicial do betão</li>
+              <li>Formulação da mistura de betão</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Ensaios de caracterização</h3>
+            <ul>
+              <li><strong>Mecânica:</strong> resistência à compressão e flexão em idades precoces (1, 3 e 7 dias) e aos 28 dias.</li>
+              <li><strong>Durabilidade:</strong> absorção de água, porosidade por intrusão de mercúrio e permeabilidade.</li>
+              <li><strong>Carbonatação:</strong> profundidade de carbonatação com fenolftaleína e verificação do risco de corrosão nas armaduras.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="seguranca">
+      <div class="section-head">
+        <div class="kicker">07 · Segurança e requisitos técnicos</div>
+        <h2>Segurança desde a conceção</h2>
+        <p class="lead">A operação envolve CO₂ e diferenciais de pressão; a segurança estrutural, ambiental e de acesso deve ser tratada como requisito essencial.</p>
+      </div>
+      <div class="warning">
+        <div class="symbol" aria-hidden="true">⚠</div>
+        <div><strong>Aviso de segurança</strong><p>O dióxido de carbono é incolor, inodoro e asfixiante. A câmara trabalha com vácuo e pressão positiva. O conteúdo desta página é uma síntese do conceito e não substitui o dimensionamento, a certificação nem a validação por técnicos habilitados.</p></div>
+      </div>
+      <div class="grid" style="margin-top:16px">
+        <article class="card"><h3>Dimensionamento estrutural</h3><p>O recipiente deve ser dimensionado e certificado para cargas combinadas de vácuo e pressão por técnico habilitado.</p></article>
+        <article class="card"><h3>Deteção ambiental</h3><p>Instalar sensor de CO₂ na sala de trabalho, com alarme sonoro e luminoso.</p></article>
+        <article class="card"><h3>Alívio e interbloqueio</h3><p>Prever válvula mecânica de segurança, disco de rutura e bloqueio da tampa.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="kicker">08 · Indicadores de desempenho</div>
+        <h2>Como avaliar o protótipo</h2>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><span>Estabilidade</span><strong>&lt; 5</strong><p>Desvio entre setpoint e valores medidos de T, HR, P e CO₂, conforme indicado no documento.</p></div>
+        <div class="kpi"><span>Uniformidade</span><strong>Espacial</strong><p>Variação mínima dos parâmetros dentro da câmara.</p></div>
+        <div class="kpi"><span>Eficiência de cura</span><strong>Ganho (%)</strong><p>Comparação da resistência inicial com cura convencional em câmara húmida.</p></div>
+        <div class="kpi"><span>Fixação de CO₂</span><strong>kg/m³</strong><p>Quantidade de CO₂ fixado por metro cúbico de betão, calculada por balanço de massa.</p></div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:12px">Nota: o documento não especifica a unidade nem o método de cálculo do desvio “&lt;5”; esse critério deve ser clarificado no plano de validação.</p>
+    </section>
+
+    <section class="section" style="padding-top:15px">
+      <div class="two-col">
+        <div>
+          <div class="kicker">09 · Recursos necessários</div>
+          <h2>Equipamento e equipa</h2>
+          <p class="lead">O desenvolvimento requer hardware industrial e colaboração multidisciplinar.</p>
+          <div class="materials">
+            <span class="pill">Recipiente estrutural</span><span class="pill">Bomba de vácuo</span><span class="pill">Cilindros de CO₂</span><span class="pill">Permutador térmico</span><span class="pill">Ventiladores</span><span class="pill">PLC</span><span class="pill">Ecrã HMI</span><span class="pill">Sensores industriais</span>
+          </div>
+        </div>
+        <div class="soft-panel">
+          <h3>Equipa multidisciplinar</h3>
+          <ul>
+            <li>Engenharia Mecânica — projeto de vasos sob pressão</li>
+            <li>Engenharia Civil / Materiais — tecnologia do betão</li>
+            <li>Automação e Eletrónica</li>
+            <li>Técnico de Segurança no Trabalho</li>
+          </ul>
+        </div>
+      </div>
+      <div class="section-head" style="margin-top:48px;margin-bottom:0">
+        <div class="kicker">10 · Resultados esperados</div>
+        <h2>Entregáveis do projeto</h2>
+      </div>
+      <div class="grid" style="margin-top:20px">
+        <article class="card"><div class="icon">01</div><h3>Protótipo validado</h3><p>Protótipo funcional para cura acelerada por CO₂.</p></article>
+        <article class="card"><div class="icon">02</div><h3>Manual de utilização</h3><p>Documentação de operação do sistema.</p></article>
+        <article class="card"><div class="icon">03</div><h3>Base de dados experimental</h3><p>Dados detalhados e curvas otimizadas de cura.</p></article>
+        <article class="card"><div class="icon">04</div><h3>Relatório final</h3><p>Análise do impacto na resistência, durabilidade, custos e pegada de carbono.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Protótipo de Câmara de Cura em Atmosfera Rica em CO₂</span>
+      <span>Resumo web baseado no plano de desenvolvimento fornecido.</span>
+      <a class="backtop" href="#inicio">Voltar ao topo ↑</a>
+    </div>
+  </footer>
+</body>
+</html>
